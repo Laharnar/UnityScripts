@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+// version 2
 public class TransformToggler : MonoBehaviour {
 
     public ComponentTarget[] targets;
@@ -41,7 +42,7 @@ public class ComponentTarget
     public string commentary;
 }
 
-
+// version 1
 public abstract class ComponentToggler : MonoBehaviour{
 
     public ComponentTarget[] targets;
