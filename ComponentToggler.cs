@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public abstract class ComponentToggler {
+public abstract class ComponentToggler : MonoBehaviour{
 
-    MonoBehaviour[] targets;
+    public ComponentTarget[] targets;
     private int _activePlayer = -1;
 
     public int ActivePlayer
@@ -24,10 +24,15 @@ public abstract class ComponentToggler {
         ActivePlayer++;
         for (int i = 0; i < targets.Length; i++)
         {
-            targets[i].enabled = false;
+            targets[i].target.enabled = false;
         }
-        targets[ActivePlayer].enabled = true;
+        targets[ActivePlayer].target.enabled = true;
     }
+}
 
-    
+[System.Serializable]
+class ComponentTarget
+{
+    public MonoBehaviour target;
+    public string commentary;
 }
