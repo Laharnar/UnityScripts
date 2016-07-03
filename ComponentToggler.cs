@@ -1,6 +1,47 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public class TransformToggler : MonoBehaviour {
+
+    public ComponentTarget[] targets;
+    private int _activePlayer = -1;
+
+    public int ActivePlayer
+    {
+        get { return _activePlayer; }
+        set
+        {
+            if (targets.Length == 0)
+            {
+                return;
+            }
+            _activePlayer = value % targets.Length;
+        }
+    }
+
+    public void NextTarget()
+    {
+        if (targets.Length == 0)
+	    {
+		     return;
+	    }
+
+        ActivePlayer++;
+        if (ActivePlayer-1 > -1)
+	    {
+            targets[ActivePlayer-1].target.SetActive(false);
+	    }
+        targets[ActivePlayer].target.SetActive(true);
+    }
+}
+[System.Serializable]
+public class ComponentTarget
+{
+    public GameObject target;
+    public string commentary;
+}
+
+
 public abstract class ComponentToggler : MonoBehaviour{
 
     public ComponentTarget[] targets;
