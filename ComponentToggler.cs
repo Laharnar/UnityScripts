@@ -31,7 +31,7 @@ public abstract class ComponentToggler : MonoBehaviour{
 }
 
 [System.Serializable]
-class ComponentTarget
+public class ComponentTarget
 {
     public MonoBehaviour target;
     public string commentary;
