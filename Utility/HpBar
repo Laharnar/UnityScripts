@@ -33,6 +33,10 @@ public class HpBar : MonoBehaviour {
         originalPosition = bar.transform.position;
     }
 
+    void Update(){
+        UpdateBarOnHpChange(healthData.hp);
+    }
+    
     void UpdateBarOnHpChange(float health) {
         var scale = originalScale.x* health/healthData.maxHealth;
         //transform.position -= new Vector3((int)scale, 0 , 0);
