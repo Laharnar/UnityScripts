@@ -1,0 +1,44 @@
+
+
+/*
+Hp bar script that uses simple sprite and objects scale
+
+How to create hp bar:
+1) Create new sprite via Create/Sprite/Square, or make your own image
+2) Assign it as sprite renderer on empty game object
+3) Connect it to data with max hp, which is needed for size calculations
+
+Note that object with this  is scaled so script should be on child object.
+*/
+using UnityEngine;
+using System.Collections;
+
+public class HpBar : MonoBehaviour {
+
+    /// <summary>
+    /// Hp data that's connected to this hp bar.
+    /// </summary>
+    public HpControl healthData;
+
+    /// <summary>
+    /// Gui object for this bar.
+    /// </summary>
+    public SpriteRenderer bar;
+
+    Vector3 originalScale;
+    Vector3 originalPosition;
+
+    void Start() {
+        originalScale = bar.transform.localScale;
+        originalPosition = bar.transform.position;
+
+        ship.RegisterShipHpStatus(UpdateBarOnHpChange);
+    }
+
+    void UpdateBarOnHpChange(float health) {
+        var scale = originalScale.x* health/healthData.maxHealth;
+        //transform.position -= new Vector3((int)scale, 0 , 0);
+
+        bar.transform.localScale = new Vector3(scale, originalScale.y, originalScale.z);
+    }
+}
