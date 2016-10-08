@@ -31,8 +31,6 @@ public class HpBar : MonoBehaviour {
     void Start() {
         originalScale = bar.transform.localScale;
         originalPosition = bar.transform.position;
-
-        ship.RegisterShipHpStatus(UpdateBarOnHpChange);
     }
 
     void UpdateBarOnHpChange(float health) {
