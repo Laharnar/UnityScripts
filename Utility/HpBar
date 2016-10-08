@@ -1,5 +1,3 @@
-
-
 /*
 Hp bar script that uses simple sprite and objects scale
 
@@ -13,7 +11,8 @@ Note that object with this  is scaled so script should be on child object.
 using UnityEngine;
 using System.Collections;
 
-public class HpBar : MonoBehaviour {
+public class HpBar : MonoBehaviour
+{
 
     /// <summary>
     /// Hp data that's connected to this hp bar.
@@ -28,19 +27,31 @@ public class HpBar : MonoBehaviour {
     Vector3 originalScale;
     Vector3 originalPosition;
 
-    void Start() {
+    // by default, hp is visualy reduced to the left
+    public bool reduceHpToCenter = false;
+
+    void Start()
+    {
         originalScale = bar.transform.localScale;
-        originalPosition = bar.transform.position;
+        originalPosition = bar.transform.localPosition;
     }
 
-    void Update(){
+    void Update()
+    {
         UpdateBarOnHpChange(healthData.hp);
     }
-    
-    void UpdateBarOnHpChange(float health) {
-        var scale = originalScale.x* health/healthData.maxHealth;
-        //transform.position -= new Vector3((int)scale, 0 , 0);
+
+    void UpdateBarOnHpChange(float health)
+    {
+        var scale = originalScale.x * health / healthData.maxHealth;
+
+        if (!reduceHpToCenter)
+        {
+            var posx = originalPosition.x - (originalScale.x - originalScale.x * health / healthData.maxHealth) / 2;
+            bar.transform.localPosition = new Vector3(posx, 0, 0);
+        }
 
         bar.transform.localScale = new Vector3(scale, originalScale.y, originalScale.z);
     }
+}
 }
