@@ -35,7 +35,7 @@ public class SimpleUnit : MonoBehaviour {
         idle
     }
     
-    void Start()
+    void Awake()
     {
         StartCoroutine(RotationLerp());
         StartCoroutine(MovementLerp());
@@ -81,6 +81,7 @@ public class SimpleUnit : MonoBehaviour {
         )
     {
         string keyword = moveType.ToString();
+        //Debug.Log(keyword);
         switch (moveType)
         {
             // movement
@@ -107,7 +108,6 @@ public class SimpleUnit : MonoBehaviour {
 
                 break;
             case Moves.idle:
-                Debug.Log("simple unit idle");
                 Idle();
                 break;
             default:
