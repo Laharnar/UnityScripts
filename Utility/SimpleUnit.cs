@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System;
 
@@ -23,6 +23,9 @@ public class SimpleUnit : MonoBehaviour {
     string movementState = "idle";
     string rotationState = "idle";
 
+    private float rotateToHorizontal = 0;
+    private float moveToVertical = 0;
+
     public enum Moves
     {
         forward,
@@ -30,6 +33,12 @@ public class SimpleUnit : MonoBehaviour {
         left,
         right,
         idle
+    }
+    
+    void Start()
+    {
+        StartCoroutine(RotationLerp());
+        StartCoroutine(MovementLerp());
     }
 
     // Update is called once per frame
@@ -49,17 +58,9 @@ public class SimpleUnit : MonoBehaviour {
             if (instantlyResetMove)
             {
                 vertical = 0;
-                movementState = "idle";
             }
-            else
-            {
-                if (movementState != "idle")
-                {// these ifs are here because coroutine has to run only once
-                    float time = ((vertical + 1) / 2) / acceleration;
-                    StartCoroutine(Lerp(SetVertical, vertical, 0, time, null));//normalize so it needs up to 1s
-                    movementState = "idle";
-                }
-            }
+            moveToVertical = 0;
+            movementState = "idle";
         }
         // rotation reset
         if (resetRotation)
@@ -67,25 +68,17 @@ public class SimpleUnit : MonoBehaviour {
             if (instantlyResetRot)
             {
                 horizontal = 0;
-                rotationState = "idle";
             }
-            else
-            {
-                if (rotationState != "idle")
-                {
-                    float time = ((horizontal + 1) / 2) / mobility;
-                    StartCoroutine(Lerp(SetHorizontal, horizontal, 0, time, null));//normalize so it needs up to 1s
-                    rotationState = "idle";
-                }
-            }
+            rotateToHorizontal = 0;
+            rotationState = "idle";
         }
     }
 
     public void ExecuteMove(Moves moveType,
         bool overridePrevMoves = false, 
         bool stopWhenDone = false, 
-        bool resetFirst = false, 
-        Action stopLerpCoro = null)
+        bool resetFirst = false 
+        )
     {
         string keyword = moveType.ToString();
         switch (moveType)
@@ -110,10 +103,11 @@ public class SimpleUnit : MonoBehaviour {
             case Moves.right:
                 if (rotationState == keyword) return;
                 else rotationState = keyword;
-                TurnRight(overridePrevMoves, stopWhenDone, resetFirst, stopLerpCoro);
+                TurnRight(overridePrevMoves, stopWhenDone, resetFirst);
 
                 break;
             case Moves.idle:
+                Debug.Log("simple unit idle");
                 Idle();
                 break;
             default:
@@ -132,11 +126,8 @@ public class SimpleUnit : MonoBehaviour {
         {
             vertical = 0;
         }
-        Debug.Log(vertical+" "+ resetFirst + " "+ vertical / acceleration);
-        StopCoroutine("Lerp");
-        float time = ((vertical+1)/2)/acceleration;
-        StartCoroutine(Lerp(SetVertical, vertical, 1, time, stopLerpCoro));//normalize so it needs up to 1s
 
+        moveToVertical = 1;
     }
 
     void Back(bool overrideRotation = true, bool stopWhenDone = false, bool resetFirst = false, Action stopLerpCoro = null)
@@ -150,11 +141,8 @@ public class SimpleUnit : MonoBehaviour {
         {
             vertical = 0;
         }
-        StopCoroutine("Lerp");
-        float time = ((vertical + 1) / 2) / acceleration;
 
-        StartCoroutine(Lerp(SetVertical, vertical, -1, time, stopLerpCoro));//normalize so it needs up to 1s
-
+        moveToVertical = -1;
     }
 
     void TurnLeft(bool overrideMovement = true, bool stopWhenDone = false, bool resetFirst = false, Action stopLerpCoro = null) {
@@ -168,9 +156,7 @@ public class SimpleUnit : MonoBehaviour {
             horizontal = 0;
         }
 
-        StopCoroutine("Lerp");
-        float time = ((horizontal + 1) / 2) / mobility;
-        StartCoroutine(Lerp(SetHorizontal, horizontal, 1, time, stopLerpCoro));//normalize so it needs up to 1s
+        rotateToHorizontal = 1;
     }
 
     void TurnRight(bool overrideMovement = true, bool stopWhenDone = false, bool resetFirst = false, Action stopLerpCoro = null)
@@ -184,36 +170,61 @@ public class SimpleUnit : MonoBehaviour {
             horizontal = 0;
         }
 
-        StopCoroutine("Lerp");
-        float time = ((horizontal + 1) / 2) / mobility;
-        StartCoroutine(Lerp(SetHorizontal, horizontal, -1, time, stopLerpCoro));//normalize so it needs up to 1s
-
+        rotateToHorizontal = -1 ;
     }
 
-    void SetHorizontal(float value)
+    /// <summary>
+    /// rotation loop that takes care of lerping of horizontal value
+    /// 
+    /// change 'rotateToHorizontal' to change lerp target.
+    /// </summary>
+    /// <param name="rotateToHorizontal"></param>
+    /// <returns></returns>
+    IEnumerator RotationLerp(float rotateToHoriz = 0)
     {
-        horizontal = value;
-    }
-
-    void SetVertical(float value)
-    {
-        vertical = value;
-    }
-
-    private IEnumerator Lerp(Action<float> callback, float startValue, float endValue, float time, Action onDone)
-    {
-        float i = 0.0f;
-        float rate = 1.0f / time;
-        while (i < 1.0)
+        rotateToHorizontal = rotateToHoriz;
+        while (true)
         {
-            i += Time.deltaTime * rate;
-            callback(Mathf.Lerp(startValue, endValue, i));
-            
-            yield return null;
+            float rtime = ((horizontal + 1) / 2) / mobility;
+
+            float i = 0.0f;
+            float rate = 1.0f / rtime;
+            float startValue = horizontal;
+            float lastRotationTo = rotateToHorizontal;
+            while (i < 1.0)
+            {
+                if (lastRotationTo != rotateToHorizontal)// make sure calculations are up to date, reset them
+                    break;// reset calculations if target lerp changes
+
+                i += Time.deltaTime * rate;
+                horizontal = Mathf.Lerp(startValue, rotateToHorizontal, i);
+                yield return null;
+            }
         }
-        if (onDone != null)
+    }
+
+
+    IEnumerator MovementLerp(float moveToVert = 0)
+    {
+        moveToVertical = moveToVert;
+        while (true)
         {
-            onDone();
+            float vtime = ((vertical + 1) / 2) / acceleration;
+
+            float i = 0.0f;
+            float rate = 1.0f / vtime;
+            float startValue = vertical;
+            float lastMoveTo = moveToVertical;
+            while (i < 1.0)
+            {
+                if (lastMoveTo != moveToVertical)
+                    break;
+
+                i += Time.deltaTime * rate;
+                vertical = Mathf.Lerp(startValue, moveToVertical, i);
+
+                yield return null;
+            }
         }
     }
 }
