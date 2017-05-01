@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
+/*example for ai*/
 public class FlowerAi : MonoBehaviour {
 
     /// <summary>
