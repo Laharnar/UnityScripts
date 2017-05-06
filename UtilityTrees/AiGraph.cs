@@ -1,21 +1,23 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using UnityEditor;
 using System.Collections.Generic;
 
 /// <summary>
 /// Displays actions and scores on selected ai unit.
+/// 
+/// Note: Currently it only displays 1 type of ai. Add base class type for ai.
 /// </summary>
 public class AiGraph : EditorWindow{
 
     [MenuItem("Examples/GUILayout TextField")]
     static void Init() {
-        EditorWindow window = GetWindow(typeof(AiGrahp));
+        EditorWindow window = GetWindow(typeof(AiGraph));
         window.Show();
     }
 
     void OnGUI() {
-        GUILayout.Label("Select an object in the hierarchy view");
+        GUILayout.Label("Select an object with ai in the hierarchy view");
         if (Selection.activeGameObject) {
             Selection.activeGameObject.name =
                 EditorGUILayout.TextField("Object Name: ", Selection.activeGameObject.name);
